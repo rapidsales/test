@@ -1,0 +1,193 @@
+<apex:page showheader="false" sidebar="false" standardStylesheets="false" action="{!saveOnLoad}" standardController="Quote" extensions="AnyObjectSignatureController">
+<html>
+<head>
+<meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+<script>var $j = jQuery.noConflict();</script>
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"/>
+<!-- Latest compiled and minified JavaScript -->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css"/>
+<link rel="stylesheet" href="http://code.jquery.com/mobile/1.3.2/jquery.mobile-1.3.2.min.css" />
+<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+<script src="http://code.jquery.com/mobile/1.3.2/jquery.mobile-1.3.2.min.js"></script>
+<script type="text/javascript" src="js/jquery.ui.touch-punch.min.js"></script>
+<link type="text/css" href="css/jquery.signature.css" rel="stylesheet"/> 
+<script type="text/javascript" src="js/jquery.signature.js"></script>
+
+</head>
+<body>
+<div class="container">
+    <span class="heading">Purchase Order</span><br/><br/>
+    
+    <b>ABC Company</b><br/>
+    <b>Street Address</b><br/>
+    <b>City, ST Postal Code</b><br/>
+    <b>Phone 805.555.1000 Fax 805.555.1001</b><br/>
+
+    <br/><br/>
+    <table class="table">
+        <tr>
+            <td><b>Bill To</b></td>
+            <td><b>Ship To</b></td>
+        </tr>
+        <tr>
+            <td>{!Quote.Account.BillingStreet}</td>
+            <td>{!Quote.Account.ShippingStreet}</td>
+        </tr>
+        <tr>
+            <td>{!Quote.Account.BillingCity} {!Quote.Account.BillingState} {!Quote.Account.BillingPostalCode}</td>
+            <td>{!Quote.Account.ShippingCity} {!Quote.Account.ShippingState} {!Quote.Account.ShippingPostalCode}</td>
+        </tr>
+        <tr>
+            <td>{!Quote.Account.BillingCountry}</td>
+            <td>{!Quote.Account.ShippingCountry}</td>
+        </tr>
+    </table>
+    <br/><br/>
+    <div class="content">Line Items</div>
+    <table class="table">
+        <tr>
+            <th>Name</th>           
+            <th>Product</th>
+            <th>Quantity</th>
+            <th>Unit Price</th>
+            <th>Total</th>
+        </tr>
+        <apex:repeat value="{!LineItems}" var="item" id="theRepeat">
+        <tr>
+            <td><apex:outputText value="{!item.Product2.Name}" /></td>
+            <td>
+                <apex:outputText value="{0, number, 000}">
+                    <apex:param value="{!item.Quantity}" />
+                </apex:outputText>
+            </td>
+            <td>
+                <apex:outputText value="{0,number,#,##0.00}">$    
+                    <apex:param value="{!item.UnitPrice }"/>
+                </apex:outputText>
+            </td>
+            <td>
+                <apex:outputText value="{0,number,#,##0.00}">$    
+                    <apex:param value="{!item.Subtotal}"/>
+                </apex:outputText>
+            </td>
+        </tr>
+        </apex:repeat>  
+        <tr>
+            <td colspan="4"><b>Total Amount:</b></td>
+            <td>
+                <b><apex:outputText value="{0,number,#,##0.00}">$    
+                    <apex:param value="{!Quote.TotalPrice}"/>
+                </apex:outputText></b>
+            </td>
+        </tr>
+    </table>
+    
+    <br/><br/>
+    <table class="table">
+        <tr>
+            <td style="height:30px;">Name:</td><td>/n1</td>
+        </tr>
+   </table>      
+
+</div>
+<div data-role="page" id="signatureCaptureHome">
+<div data-role="content">
+
+</div> 
+<apex:form styleClass="container"><apex:commandButton action="{!saveOnLoad}" onclick="Signature();quotepage();"  styleClass="btn btn-success" Value="Save"/></apex:form>
+</div>
+<!--<apex:outputPanel id="thePanel" rendered="{!Order.Warranty_Included__c == True}">
+    <span class="subheading">Warranty</span>
+    <ol>
+        <li>Warranty will begin after formal acceptance of the Equipment or upon a mutually agreed date.</li>
+        <li>In the event that the Vendor does not manufacture certain major components in the system and is acting instead as "distributor" of these components, either the Vendor itself shall warrant these components or the Vendor shall provide warranty commitments by the actual manufacturer whose Equipment the Vendor proposes to furnish to the Hospital.  Failure to comply could result in revocation of this purchase order.</li>
+        <li>All warranty service work shall be documented.  Warranty service shall be scheduled through the Hospitals.  Complete, legible copies of the service form must be left with the departmental shift supervisor when the work is finished.</li>
+        <li>The Vendor shall extend the warranty period if the Equipment experiences performance deficiencies during the warranty period.</li>
+        <li>The decision to repair or replace faulty components during the warranty period shall be made jointly by the Hospital and the Vendor.</li>
+        <li>If warranty service is required outside the normal service hours (Monday through Friday, 8:30am to 5:00pm), the Hospital will only pay a labor rate that does not exceed the difference between the current regular rate and the premium rate.</li>
+        <li>The Vendor, in conjunction with the Hospital and the applicable departmental representatives, shall carry out a complete evaluation of the system to assure that all specifications are met thirty (30) days before the end of the warranty period.  The Vendor shall offer a warranty extension according to D.4.</li>
+        <li>If the cumulative downtime or restricted clinical use exceeds ten (10%) of the total warranty period, the Vendor will extend the warranty to include an additional 30 days for every point below 90%.</li>
+    </ol>
+</apex:outputPanel>
+-->
+</body>
+<script>
+
+    var canvas;
+    var context;
+    var drawingUtil;
+    var isDrawing = false;
+    var accountid ='{!Quote.id}';
+
+function DrawingUtil() 
+{
+    isDrawing = false;
+    canvas.addEventListener("touchstart",start,false);
+    canvas.addEventListener("touchmove",draw,false);
+    canvas.addEventListener("touchend",stop,false);
+    context.strokeStyle = "#FF0000";  
+}
+
+//Start Event for Signature Captuare on HTML5 Canvas
+function start(event) 
+{
+    isDrawing = true;
+    canvas = document.getElementById("signatureCanvas");
+    context = canvas.getContext("2d");    
+    context.strokeStyle = "rgba(155,0,0,0.5)";      
+    context.beginPath();
+     context.moveTo(event.touches[0].pageX - canvas.getBoundingClientRect().left,event.touches[0].pageY - canvas.getBoundingClientRect().top);
+}
+
+//Event while someone is drawing to caputre the path while they draw....
+function draw(event) {
+    event.preventDefault();
+    if(isDrawing) {     
+        context.lineTo(event.touches[0].pageX - canvas.getBoundingClientRect().left,event.touches[0].pageY - canvas.getBoundingClientRect().top);
+        context.stroke();
+    }
+}
+
+
+//Event when someone stops drawing their signature line
+function stop(event) {
+    if(isDrawing) {
+        context.stroke();
+        context.closePath();
+        isDrawing = false;
+    }
+}
+
+canvas = document.getElementById("signatureCanvas");
+context = canvas.getContext("2d");
+drawingUtil = new DrawingUtil(canvas);
+
+
+function Signature()
+{
+var strDataURI = canvas.toDataURL();
+    // alert(strDataURI);
+    strDataURI = strDataURI.replace(/^data:image\/(png|jpg);base64,/, "");
+alert(strDataURI);
+AnyObjectSignatureController.saveSignature(strDataURI,accountid,processResult);
+
+}
+function quotepage()
+{
+sforce.one.navigateToURL("/{!Quote.id}");
+
+}
+function processResult(result)
+{
+//alert(JSON.stringify(result));
+}
+
+</script>
+</html>
+</apex:page>

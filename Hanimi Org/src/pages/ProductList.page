@@ -1,0 +1,159 @@
+<apex:page docType="html-5.0"
+           showHeader="false" 
+           sidebar="false"
+           standardStylesheets="false"
+           standardController="Product2"        
+           extensions="Products_Ext">
+           <head>
+    <title>Picture List View Template</title>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1,  minimum-scale=1, maximum-scale=1, user-scalable=no"/>   
+    <apex:stylesheet value="{!URLFOR($Resource.Mobile_Design_Templates, 'Mobile-Design-Templates-master/common/css/app.min.css')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.Mobile_Design_Templates, 'Mobile-Design-Templates-master/common/js/jQuery2.0.2.min.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.Mobile_Design_Templates, 'Mobile-Design-Templates-master/common/js/jquery.touchwipe.min.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.Mobile_Design_Templates, 'Mobile-Design-Templates-master/common/js/main.min.js')}"/>
+    <apex:includeScript value="{!$Resource.underscore_1_5_1}"/> 
+    <apex:includeScript value="{!$Resource.path_js}"/>
+    
+     <script type="text/html" id='listView'>
+                    <header>
+                <h1>Products</h1>
+                </header>
+            <div class="app-content">
+                <ul id="cList" class="list-view with-swipe left-thumbs right-one-icons">
+                    <% for(var i = 0; i < products.length; i++){ %>
+                        <li>
+                            <div class="thumbs">
+                                <% if (typeof(products[i].name) != "undefined") { %>
+                                    <a href="Product Name:<%= products[i].name%>" class="thumb thumb-1">
+                                        <img class="thumb" src="{!URLFOR($Resource.Mobile_Design_Templates, 'Mobile-Design-Templates-master/common/images/icons/tile-phone.png')}" />
+                                    </a>    
+                                <% } %>                
+                                
+                                <% if (typeof(products[i].name) != "undefined") {%>
+                                    <a href="Product Name:<%= products[i].name%>" class="thumb thumb-2">
+                                        <img class="thumb" src="{!URLFOR($Resource.Mobile_Design_Templates, 'Mobile-Design-Templates-master/common/images/icons/tile-email.png')}" />
+                                    </a>
+                                <% } %>                
+                                <img class="thumb thumb-3" src="<%= products[i].Pic %>"/>
+                            </div>
+                                    <a href="#/product/<%= products[i].Id %>" class="content">
+                                <h4><%= products[i].Name %></h4>
+                                <%= products[i].ProductCode%>
+                                <div class="list-view-icons">
+                                    <span class="icon-right-arrow">&nbsp;</span>
+                                </div>
+                            </a>
+                        </li>
+                    <% } %>                
+                </ul>        
+            </div>
+    </script>
+      <script type="text/html" id='detailView'>
+            <div class="app-wrapper">
+            
+                
+                <header>
+                        <div class="main-menu-button main-menu-button-left"><a class="left-arrow" href="#/products">&nbsp;</a></div>
+                    <h1>Product</h1>
+                </header>
+                
+                <div class="app-content">
+                
+                    <div class="detail-view-header left-thumb">
+                        <div class="content">
+                            <img class="thumb" src="<%= product.Pic %>"/>
+                            <h1><%= product.Name %></h1>
+                                </div>
+                    </div>
+                    
+                    <section class="border-bottom">
+                        <div class="content">
+                            <h3>Available</h3>
+                            <p>
+                                <%= product.Available__c%><br/>
+                                
+                            </p>
+                        </div>
+                        <div class="content">
+                            <h3>Description</h3>
+                            <p>
+                                  <%= product.Description%> 
+                            </p>
+                        </div>    
+                    </section> 
+                    <section class="border-bottom">
+                        <div class="content">
+                    <button class="btn bg-primary-btn btn--primary pvs size-full brm no-border" onclick="createNew()">
+                    <span class="text-color-5 f3 fw-semibold">Order</span>
+                    </button>
+                       </div>
+                     
+                    </section> 
+                </div>
+            </div>
+    </script>
+    <script type="text/javascript">
+            var productRecs = new Array();
+            var compiledListViewTempl = _.template($("#listView").html());
+            var compiledDetailViewTempl = _.template($("#detailView").html());
+                
+            $(document).ready(function() {
+                getAllProducts();
+            });
+            
+            function getAllProducts(){
+                Visualforce.remoting.Manager.invokeAction(
+                        '{!$RemoteAction.Products_Ext.getproductRecs}',
+                        function(records, e) { 
+                            showProducts(records);}, 
+                        {escape:false}); 
+            }
+    
+            function showProducts(records) {               
+                productRecs.length = 0;                                
+                for(var i = 0; i < records.length; i++) { 
+                    records[i].Pic = '{!URLFOR($Resource.BlankAvatar)}';
+                    if (typeof records[i].Image__c!= "undefined"){
+                        records[i].Pic = $(records[i].Image__c).attr('src');
+                    }
+                    productRecs[records[i].Id] = records[i]; 
+                }
+
+                $('#mainContainer').empty();
+                $('#mainContainer').append(compiledListViewTempl({products : records}));
+                $(document).trigger('onTemplateReady');               
+            }
+
+            function showproductDetails(recordId) {
+                var product = productRecs[recordId];
+                
+                $('#mainContainer').empty();
+                $('#mainContainer').append(compiledDetailViewTempl({product: product}));
+            }
+                
+            Path.map("#/products").to(function(){
+                getAllProducts();
+            });
+    
+            Path.map("#/product/:Id").to(function(){
+                showproductDetails(this.params['Id']);
+            });
+                
+            Path.listen();    
+    </script>
+    <script>
+    function createNew() {
+      sforce.one.createRecord("Order");
+}
+</script>
+</head>
+
+<body>
+    <div id="mainContainer">
+
+    </div>
+    
+</body>  
+      
+</apex:page>

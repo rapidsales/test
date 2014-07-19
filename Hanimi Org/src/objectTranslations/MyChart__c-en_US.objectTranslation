@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>MyChart</value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value>MyCharts</value>
+    </caseValues>
+    <fields>
+        <label><!-- apiVersion --></label>
+        <name>apiVersion__c</name>
+    </fields>
+    <fields>
+        <label><!-- height --></label>
+        <name>height__c</name>
+    </fields>
+    <fields>
+        <label><!-- imgData --></label>
+        <name>imgData__c</name>
+    </fields>
+    <fields>
+        <label><!-- reportApiUrl --></label>
+        <name>reportApiUrl__c</name>
+    </fields>
+    <fields>
+        <label><!-- reportId --></label>
+        <name>reportId__c</name>
+    </fields>
+    <fields>
+        <label><!-- state --></label>
+        <name>state__c</name>
+    </fields>
+    <fields>
+        <label><!-- type --></label>
+        <name>type__c</name>
+        <picklistValues>
+            <masterLabel>area</masterLabel>
+            <translation><!-- area --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>barHorizontal</masterLabel>
+            <translation><!-- barHorizontal --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>barVertical</masterLabel>
+            <translation><!-- barVertical --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>line</masterLabel>
+            <translation><!-- line --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>pie</masterLabel>
+            <translation><!-- pie --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>scatter</masterLabel>
+            <translation><!-- scatter --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>steppedArea</masterLabel>
+            <translation><!-- steppedArea --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>treemap</masterLabel>
+            <translation><!-- treemap --></translation>
+        </picklistValues>
+    </fields>
+    <layouts>
+        <layout>MyChart Layout</layout>
+        <sections>
+            <label><!-- Custom Links --></label>
+            <section>Custom Links</section>
+        </sections>
+    </layouts>
+    <startsWith>Consonant</startsWith>
+</CustomObjectTranslation>

@@ -1,0 +1,110 @@
+<apex:page controller="AnyObjectSignatureController" showheader="false" sidebar="false" standardStylesheets="false">
+<script>var $j = jQuery.noConflict();</script>
+<link rel="stylesheet" href="http://code.jquery.com/mobile/1.3.2/jquery.mobile-1.3.2.min.css" />
+<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+<script src="http://code.jquery.com/mobile/1.3.2/jquery.mobile-1.3.2.min.js"></script>
+<script type="text/javascript" src="js/jquery.ui.touch-punch.min.js"></script>
+<link type="text/css" href="css/jquery.signature.css" rel="stylesheet"/> 
+<script type="text/javascript" src="js/jquery.signature.js"></script>
+
+<div data-role="page" id="signatureCaptureHome"> 
+<div data-role="content">
+<input id="accountNameId" type="text" name="accountName" />
+<input type="button" name="findAccountBtn" onclick="findAccounts();" value="Find Accounts"/>
+<h1 id="recordSigId">Record Signature:</h1>
+<canvas id="signatureCanvas" height="200px" width="300px" style="border:1px solid #d3d3d3;"/>
+<input id="saveSigButton" type="button" name="SigCap" onclick="saveSignature();" value="Capture Signature"></input>
+</div> 
+</div> 
+<div data-role="page" id="signatureCaptureHome"> 
+<div data-role="content">
+<input id="accountNameId" type="text" name="accountName"/>
+<input type="button" name="findAccountBtn" onclick="findAccounts();" value="Find Accounts"/>
+</div> 
+</div> 
+
+<script>
+
+    var canvas;
+    var context;
+    var drawingUtil;
+    var isDrawing = false;
+    var accountId = '';
+
+function DrawingUtil() 
+{
+    isDrawing = false;
+    canvas.addEventListener("touchstart",start,false);
+    canvas.addEventListener("touchmove",draw,false);
+    canvas.addEventListener("touchend",stop,false);
+    context.strokeStyle = "#FF0000";  
+}
+
+//Start Event for Signature Captuare on HTML5 Canvas
+function start(event) 
+{
+    isDrawing = true;
+    canvas = document.getElementById("signatureCanvas");
+    context = canvas.getContext("2d");    
+    context.strokeStyle = "rgba(155,0,0,0.5)";      
+    context.beginPath();
+     context.moveTo(event.touches[0].pageX - canvas.getBoundingClientRect().left,event.touches[0].pageY - canvas.getBoundingClientRect().top);
+}
+
+//Event while someone is drawing to caputre the path while they draw....
+function draw(event) {
+    event.preventDefault();
+    if(isDrawing) {     
+        context.lineTo(event.touches[0].pageX - canvas.getBoundingClientRect().left,event.touches[0].pageY - canvas.getBoundingClientRect().top);
+        context.stroke();
+    }
+}
+
+
+//Event when someone stops drawing their signature line
+function stop(event) {
+    if(isDrawing) {
+        context.stroke();
+        context.closePath();
+        isDrawing = false;
+    }
+}
+
+canvas = document.getElementById("signatureCanvas");
+context = canvas.getContext("2d");
+drawingUtil = new DrawingUtil(canvas);
+
+function saveSignature()
+{
+var strDataURI = canvas.toDataURL();
+    // alert(strDataURI);
+    strDataURI = strDataURI.replace(/^data:image\/(png|jpg);base64,/, "");
+//alert(strDataURI);
+AnyObjectSignatureController.saveSignature(strDataURI,accountId,processResult);
+}
+
+function processResult(result)
+{
+alert(JSON.stringify(result));
+}
+
+function findAccounts()
+{
+var nameValue = document.getElementById("accountNameId").value;
+AnyObjectSignatureController.findAccounts(nameValue, processSearchResult);
+} 
+
+function processSearchResult(result)
+{
+$j = jQuery.noConflict();
+//$j("#accountList").html("");
+$j.each(result, function(i, record) {accountId = record.Id; $j("#recordSigId").html("Record Signature: " + record.Name);});
+$j("#recordSigId").trigger("update");
+//$j("#accountList").trigger("update");
+//alert(JSON.stringify(result));
+}
+
+
+</script>
+
+</apex:page>
